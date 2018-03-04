@@ -56,16 +56,22 @@ public class Project1 {
 				if (processes.get(i).getArrivalTime() == time)
 					queue.add(processes.get(i));
 			}
-			if (time == 0)
+			if (time == 0) {
+				time++;
 				continue;
+			}		
+			
+			if (currentProcess != null) {
+				System.out.println(currentProcess.getID());
+			}
 			
 			if (currentProcess == null && queue.size() > 0)
 				currentProcess = queue.remove(0);
 			
-			if (currentProcess == null)
+			if (currentProcess != null)
 				currentProcess.decrementBurst();
 			
-			if (currentProcess.getRemainingBurstTime() == 0) {
+			if (currentProcess != null && currentProcess.getRemainingBurstTime() == 0) {
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
 				Process temp = new Process(currentProcess);
