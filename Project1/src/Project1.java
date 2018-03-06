@@ -55,6 +55,20 @@ public class Project1 {
 		System.out.println("]");
 	}
 	
+	private static void ioHandle(int time, ArrayList<Process> queue, ArrayList<Process> ioBlock) {
+		for(int i = 0; i < ioBlock.size(); i++) {
+			ioBlock.get(i).decrementIO();
+			if (ioBlock.get(i).getRemainingIOTime() == 0) {
+				Process temp = ioBlock.remove(i);
+				temp.resetIOTime();
+				queue.add(temp);
+				System.out.print("time "+time+"ms: Process "+temp.getID()+" completed I/0; added to ready queue");
+				printQueue(queue);
+				i--;
+			}
+		}
+	}
+	
 	
 	private static void fcfs(ArrayList<Process> processes) {
 		int n = processes.size();
@@ -76,21 +90,14 @@ public class Project1 {
 				}
 			}
 			
-			//decrement concurrent I/O 
-			for(int i = 0; i < ioBlock.size(); i++) {
-				ioBlock.get(i).decrementIO();
-				if (ioBlock.get(i).getRemainingIOTime() == 0) {
-					Process temp = ioBlock.remove(i);
-					temp.resetIOTime();
-					queue.add(temp);
-					System.out.print("time "+time+"ms: Process "+temp.getID()+" completed I/0; added to ready queue");
-					printQueue(queue);
-				}
-			}
-			
 			// context switch in to start process
 			if (currentProcess == null && queue.size() > 0) {
-				time+=T_CS/2;	//context switch
+				ioHandle(time, queue, ioBlock);
+				//context switch
+				for (int i = 0; i < T_CS/2; i++) {
+					time++;
+					ioHandle(time, queue, ioBlock);
+				}
 				currentProcess = queue.remove(0);
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				printQueue(queue);	
@@ -99,40 +106,42 @@ public class Project1 {
 			
 			// process burst finishes
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() == 0) {
+				ioHandle(time, queue, ioBlock);
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
 				if (currentProcess.getRemainingBursts() != 0) {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
 							+ " bursts to go");
 					printQueue(queue);
+					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
+							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
+					printQueue(queue);
+					Process temp = new Process(currentProcess);
+					ioBlock.add(temp);
 				}
 				else {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 					printQueue(queue);
 					n--;
 				}
-					
-				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
-						+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+" ms");
-				printQueue(queue);
 				
-				Process temp = new Process(currentProcess);
-				ioBlock.add(temp);
 				currentProcess = null;
-				time+=T_CS/2;
+				time += T_CS/2;
 				continue;
 			}
+						
+			time++;
+			//decrement concurrent I/O 
+			ioHandle(time, queue, ioBlock);
 			
 			// decrement running process
 			if (currentProcess != null)
 				currentProcess.decrementBurst();
 			
 			// all processes done
-			if (n == 0) {
+			if (n == 0) 
 				done = true;
-			}
 				
-			time++;
 		}
 		
 		System.out.println("time "+time+"ms: Simulator ended for FCFS");
