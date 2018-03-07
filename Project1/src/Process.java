@@ -2,6 +2,7 @@ import java.util.ArrayList;
 
 public class Process {
 	
+	// PRIVATE INSTANCE DATA
 	private String id;
 	private int arrivalTime;
 	private int originalBurstTime;
@@ -10,7 +11,9 @@ public class Process {
 	private int remainingBurstTime;
 	private int remainingIOTime;
 	private int remainingNumBursts;
+	private int waitTime;
 	
+	// CONSTRUCTOR
 	public Process(String procId, int arrival, int burstTime, int numBursts, int io) {
 		id = procId;
 		arrivalTime = arrival;
@@ -20,8 +23,10 @@ public class Process {
 		remainingNumBursts = numBursts;
 		originalIOTime = io;
 		remainingIOTime = io;
+		waitTime = 0;
 	}
 	
+	// COPY CONSTRUCTOR
 	public Process(Process copy) {
 		id = copy.getID();
 		arrivalTime = copy.getArrivalTime();
@@ -31,21 +36,42 @@ public class Process {
 		remainingNumBursts = copy.getRemainingBursts();
 		originalIOTime = copy.getOriginalIOTime();
 		remainingIOTime = copy.getRemainingIOTime();
+		waitTime = copy.getWaitTime();
 	}
 	
+	// RESETS
 	public void reset() {
 		remainingBurstTime = originalBurstTime;
 		remainingNumBursts= originalNumBursts;
 		remainingIOTime = originalIOTime;
 	}
-	
 	public void resetBurstTime() {
 		remainingBurstTime = originalBurstTime;
 	}
 	public void resetIOTime() {
 		remainingIOTime = originalIOTime;
 	}
+	public void resetWaitTime() {
+		waitTime = 0;
+	}
 	
+	// DECREMENTS
+	public void decrementIO() {
+		remainingIOTime--;
+	}
+	public void decrementBurst() {
+		remainingBurstTime--;
+	}
+	public void decrementNumBursts() {
+		remainingNumBursts--;
+	}
+	
+	// INCREMENT
+	public void incrementWait() {
+		waitTime++;
+	}
+	
+	// GETTERS
 	public int getArrivalTime() { 
 		return arrivalTime;
 	}
@@ -55,31 +81,23 @@ public class Process {
 	public int getRemainingIOTime() {
 		return remainingIOTime;
 	}
-	public void decrementIO() {
-		remainingIOTime--;
+	public int getOriginalIOTime() {
+		return originalIOTime;
 	}
 	public int getRemainingBurstTime() {
 		return remainingBurstTime;
-	}
-	public void decrementBurst() {
-		remainingBurstTime--;
-	}
-	public int getRemainingBursts() {
-		return remainingNumBursts;
-	}
-	public void decrementNumBursts() {
-		remainingNumBursts--;
-	}
-	
-	
-	public int getOriginalIOTime() {
-		return originalIOTime;
 	}
 	public int getOriginalBurstTime() {
 		return originalBurstTime;
 	}
 	public int getOriginalBursts() {
 		return originalNumBursts;
+	}
+	public int getRemainingBursts() {
+		return remainingNumBursts;
+	}
+	public int getWaitTime() {
+		return waitTime;
 	}
 	
 }

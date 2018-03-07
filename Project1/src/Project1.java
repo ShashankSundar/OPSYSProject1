@@ -1,5 +1,6 @@
 import java.io.*;
 import java.util.*;
+import java.lang.Math;
 
 public class Project1 {
 	
@@ -55,6 +56,12 @@ public class Project1 {
 		System.out.println("]");
 	}
 	
+	private static void waitingProc(ArrayList<Process> queue) {
+		for (int j = 0; j < queue.size(); j++) {
+			queue.get(j).incrementWait();
+		} 
+	}
+	
 	private static void ioHandle(int time, ArrayList<Process> queue, ArrayList<Process> ioBlock) {
 		for(int i = 0; i < ioBlock.size(); i++) {
 			ioBlock.get(i).decrementIO();
@@ -70,6 +77,12 @@ public class Project1 {
 	}
 	
 	private static void fcfs(ArrayList<Process> processes) {
+		double avgWaitTime = 0.0;
+		double avgBurstTime = 0.0;
+		double avgTurnaroundTime = 0.0;
+		int numContextSwitches = 0;
+		int numPreemptions = 0; //constant: FCFS has no preemptions
+		int totalBursts = 0;
 		int n = processes.size();
 		int time = 0;
 		ArrayList<Process> queue = new ArrayList<>();
@@ -83,6 +96,8 @@ public class Project1 {
 			// processes arrive
 			for(int i = 0; i < processes.size(); i++) {
 				if (processes.get(i).getArrivalTime() == time) {
+					avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
+					totalBursts += processes.get(i).getOriginalBursts();
 					queue.add(processes.get(i));
 					System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
 					printQueue(queue);
@@ -91,12 +106,13 @@ public class Project1 {
 			
 			// context switch in to start process
 			if (currentProcess == null && queue.size() > 0) {
+				currentProcess = queue.remove(0);
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
+					waitingProc(queue);
 				}
-				currentProcess = queue.remove(0);
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				printQueue(queue);	
 				continue;
@@ -124,6 +140,7 @@ public class Project1 {
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
+						waitingProc(queue);
 					}
 					
 					Process temp = new Process(currentProcess);
@@ -134,12 +151,15 @@ public class Project1 {
 				
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printQueue(queue);
+				avgWaitTime += currentProcess.getWaitTime();
+				avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
 				n--;
 				ioHandle(time, queue, ioBlock);
 				currentProcess = null;
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
+					waitingProc(queue);
 				}
 				continue;
 			}
@@ -149,7 +169,14 @@ public class Project1 {
 				break;
 						
 			time++;
+			
+			// I/0
 			ioHandle(time, queue, ioBlock);
+			
+			// Waiting
+			waitingProc(queue);
+			
+			
 			// decrement running process
 			if (currentProcess != null) {
 				currentProcess.decrementBurst();
@@ -157,7 +184,18 @@ public class Project1 {
 				
 		}
 		
+		
+		avgBurstTime = avgBurstTime/totalBursts;
+		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
+		avgWaitTime = avgWaitTime/totalBursts;
+		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
+		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		System.out.println("time "+time+"ms: Simulator ended for FCFS");
+		System.out.println("Avg Burst Time: "+avgBurstTime+" ms");
+		System.out.println("Avg Wait Time: "+avgWaitTime+" ms");
+		System.out.println("Avg Turnaround Time: "+avgTurnaroundTime+" ms");
+		System.out.println("Preemptions: "+numPreemptions);
 	}
 	
 }
