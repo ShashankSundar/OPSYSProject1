@@ -46,7 +46,7 @@ public class Project1 {
 	private static void printQueue(ArrayList<Process> queue) {
 		System.out.print(" [Q");
 		if (queue.size() == 0) {
-			System.out.print("<empty>");
+			System.out.print(" <empty>");
 		}
 		else
 			for (int j = 0; j < queue.size(); j++) {
@@ -92,7 +92,6 @@ public class Project1 {
 			
 			// context switch in to start process
 			if (currentProcess == null && queue.size() > 0) {
-				ioHandle(time, queue, ioBlock);
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
@@ -106,7 +105,6 @@ public class Project1 {
 			
 			// process burst finishes
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() == 0) {
-				ioHandle(time, queue, ioBlock);
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
 				if (currentProcess.getRemainingBursts() != 0) {
@@ -116,19 +114,33 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
 					printQueue(queue);
+					
+					//context switch
+					for (int i = 0; i < T_CS/2; i++) {
+						time++;
+						ioHandle(time, queue, ioBlock);
+					}
+					
 					Process temp = new Process(currentProcess);
 					ioBlock.add(temp);
-				}
-				else {
-					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
-					printQueue(queue);
-					n--;
+					currentProcess = null;
+					continue;
 				}
 				
+				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
+				printQueue(queue);
+				n--;
 				currentProcess = null;
-				time += T_CS/2;
+				for (int i = 0; i < T_CS/2; i++) {
+					time++;
+					ioHandle(time, queue, ioBlock);
+				}
 				continue;
 			}
+			
+			// all processes done
+			if (n == 0) 
+				break;
 						
 			time++;
 			//decrement concurrent I/O 
@@ -137,10 +149,6 @@ public class Project1 {
 			// decrement running process
 			if (currentProcess != null)
 				currentProcess.decrementBurst();
-			
-			// all processes done
-			if (n == 0) 
-				done = true;
 				
 		}
 		
