@@ -69,7 +69,6 @@ public class Project1 {
 		}
 	}
 	
-	
 	private static void fcfs(ArrayList<Process> processes) {
 		int n = processes.size();
 		int time = 0;
@@ -85,7 +84,7 @@ public class Project1 {
 			for(int i = 0; i < processes.size(); i++) {
 				if (processes.get(i).getArrivalTime() == time) {
 					queue.add(processes.get(i));
-					System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to the ready queue");
+					System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
 					printQueue(queue);
 				}
 			}
@@ -104,17 +103,23 @@ public class Project1 {
 			}
 			
 			// process burst finishes
-			if (currentProcess != null && currentProcess.getRemainingBurstTime() == 0) {
+			if (currentProcess != null && currentProcess.getRemainingBurstTime() -1 == 0) {
+				time++;
+				currentProcess.decrementBurst();
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
 				if (currentProcess.getRemainingBursts() != 0) {
-					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
-							+ " bursts to go");
+					if (currentProcess.getRemainingBursts() == 1) 
+						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
+								+ " burst to go");
+					else
+						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
+						+ " bursts to go");
 					printQueue(queue);
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
 					printQueue(queue);
-					
+					ioHandle(time, queue, ioBlock);
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
@@ -130,6 +135,7 @@ public class Project1 {
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printQueue(queue);
 				n--;
+				ioHandle(time, queue, ioBlock);
 				currentProcess = null;
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
@@ -143,12 +149,11 @@ public class Project1 {
 				break;
 						
 			time++;
-			//decrement concurrent I/O 
 			ioHandle(time, queue, ioBlock);
-			
 			// decrement running process
-			if (currentProcess != null)
+			if (currentProcess != null) {
 				currentProcess.decrementBurst();
+			}
 				
 		}
 		
