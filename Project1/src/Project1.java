@@ -113,6 +113,7 @@ public class Project1 {
 					ioHandle(time, queue, ioBlock);
 					waitingProc(queue);
 				}
+				numContextSwitches++;
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				printQueue(queue);	
 				continue;
@@ -152,7 +153,7 @@ public class Project1 {
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printQueue(queue);
 				avgWaitTime += currentProcess.getWaitTime();
-				avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+				avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 				n--;
 				ioHandle(time, queue, ioBlock);
 				currentProcess = null;
@@ -189,13 +190,14 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		System.out.println("time "+time+"ms: Simulator ended for FCFS");
-		System.out.println("Avg Burst Time: "+avgBurstTime+" ms");
-		System.out.println("Avg Wait Time: "+avgWaitTime+" ms");
-		System.out.println("Avg Turnaround Time: "+avgTurnaroundTime+" ms");
-		System.out.println("Preemptions: "+numPreemptions);
+		System.out.println("-- average CPU burst time: "+avgBurstTime+" ms");
+		System.out.println("-- average wait time: "+avgWaitTime+" ms");
+		System.out.println("-- average turnaround time: "+avgTurnaroundTime+" ms");
+		System.out.println("-- total number of context switches:: "+numContextSwitches);
+		System.out.println("-- total number of preemptions: "+numPreemptions);
 	}
 	
 }
