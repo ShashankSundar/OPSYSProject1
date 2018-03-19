@@ -40,8 +40,8 @@ public class Project1 {
 			
 			processes.add(new Process(id, arrival, burstTime, numBursts, ioTime));
 		}
-		
-		fcfs(processes);
+		rr(processes);
+//		fcfs(processes);
 	}
 
 	private static void printQueue(ArrayList<Process> queue) {
@@ -200,11 +200,12 @@ public class Project1 {
 	
 	private static void rr(ArrayList<Process> processes) {
 		int timeSlice = 80;
+		boolean preempt = false;
 		double avgWaitTime = 0.0;
 		double avgBurstTime = 0.0;
 		double avgTurnaroundTime = 0.0;
 		int numContextSwitches = 0;
-		int numPreemptions = 0; //constant: FCFS has no preemptions
+		int numPreemptions = 0; 
 		int totalBursts = 0;
 		int n = processes.size();
 		int time = 0;
@@ -226,8 +227,32 @@ public class Project1 {
 					printQueue(queue);
 				}
 			}
-			
-			// context switch in to start process
+			//time slice expired
+			if( timeSlice == 0) {
+				//not preempted
+				if(queue.size()==0){
+					preempt = false;
+					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
+					printQueue(queue);
+				//preempted
+				}else {
+					preempt = true;
+					numPreemptions++;
+					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
+					//context switch
+					for (int i = 0; i < T_CS/2; i++) {
+						time++;
+						ioHandle(time, queue, ioBlock);
+						waitingProc(queue);
+					}
+					printQueue(queue);
+					queue.add(currentProcess);
+					currentProcess = null;					
+				}
+				//reset Time Slice
+				timeSlice = 80;
+			}
+			// context switch in
 			if (currentProcess == null && queue.size() > 0) {
 				currentProcess = queue.remove(0);
 				//context switch
@@ -237,13 +262,20 @@ public class Project1 {
 					waitingProc(queue);
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
+				if(preempt && currentProcess.getOriginalBurstTime()!=currentProcess.getRemainingBurstTime()) {
+					System.out.print(" with "+currentProcess.getRemainingBurstTime()+"ms remaining");
+//					break;
+				}
 				printQueue(queue);	
 				continue;
 			}
-			
+//			if(time == 92) {
+//				break;
+//			}
 			// process burst finishes
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() -1 == 0) {
 				time++;
+				timeSlice --;
 				currentProcess.decrementBurst();
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
@@ -256,7 +288,7 @@ public class Project1 {
 						+ " bursts to go");
 					printQueue(queue);
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
-							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
+							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms "/*timeslice: " + timeSlice*/);
 					printQueue(queue);
 					ioHandle(time, queue, ioBlock);
 					//context switch
@@ -269,22 +301,25 @@ public class Project1 {
 					Process temp = new Process(currentProcess);
 					ioBlock.add(temp);
 					currentProcess = null;
+					timeSlice = 80;
 					continue;
 				}
-				
-				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
-				printQueue(queue);
-				avgWaitTime += currentProcess.getWaitTime();
-				avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
-				n--;
-				ioHandle(time, queue, ioBlock);
-				currentProcess = null;
-				for (int i = 0; i < T_CS/2; i++) {
-					time++;
+				else {
+					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
+					printQueue(queue);
+					avgWaitTime += currentProcess.getWaitTime();
+					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+					n--;
 					ioHandle(time, queue, ioBlock);
-					waitingProc(queue);
+					currentProcess = null;
+					for (int i = 0; i < T_CS/2; i++) {
+						time++;
+						ioHandle(time, queue, ioBlock);
+						waitingProc(queue);
+					}
+					timeSlice = 80;
+					continue;
 				}
-				continue;
 			}
 			
 			// all processes done
@@ -292,6 +327,7 @@ public class Project1 {
 				break;
 						
 			time++;
+			timeSlice--;
 			
 			// I/0
 			ioHandle(time, queue, ioBlock);
@@ -314,7 +350,7 @@ public class Project1 {
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
 		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
-		System.out.println("time "+time+"ms: Simulator ended for FCFS");
+		System.out.println("time "+time+"ms: Simulator ended for RR");
 		System.out.println("Avg Burst Time: "+avgBurstTime+" ms");
 		System.out.println("Avg Wait Time: "+avgWaitTime+" ms");
 		System.out.println("Avg Turnaround Time: "+avgTurnaroundTime+" ms");
