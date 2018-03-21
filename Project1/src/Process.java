@@ -44,6 +44,7 @@ public class Process {
 		remainingBurstTime = originalBurstTime;
 		remainingNumBursts= originalNumBursts;
 		remainingIOTime = originalIOTime;
+		waitTime = 0;
 	}
 	public void resetBurstTime() {
 		remainingBurstTime = originalBurstTime;

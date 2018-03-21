@@ -40,8 +40,13 @@ public class Project1 {
 			
 			processes.add(new Process(id, arrival, burstTime, numBursts, ioTime));
 		}
+		
+		fcfs(processes);
+		for(int i = 0; i < processes.size(); i++) {
+			processes.get(i).reset();
+		}
+		
 		rr(processes);
-//		fcfs(processes);
 	}
 
 	private static void printQueue(ArrayList<Process> queue) {
