@@ -1,6 +1,6 @@
 import java.util.ArrayList;
 
-public class Process {
+public class Process implements Comparable<Process>{
 	
 	// PRIVATE INSTANCE DATA
 	private String id;
@@ -44,7 +44,6 @@ public class Process {
 		remainingBurstTime = originalBurstTime;
 		remainingNumBursts= originalNumBursts;
 		remainingIOTime = originalIOTime;
-		waitTime = 0;
 	}
 	public void resetBurstTime() {
 		remainingBurstTime = originalBurstTime;
@@ -100,6 +99,18 @@ public class Process {
 	public int getWaitTime() {
 		return waitTime;
 	}
+
+	@Override
+	public int compareTo(Process p) {
+        // Compare the two processes based on remaining burst time
+        if (this.getRemainingBurstTime() < p.getRemainingBurstTime()){
+            return -1;
+        }
+        if (this.getRemainingBurstTime() > p.getRemainingBurstTime()){
+            return 1;
+        }
+        return 0;
+	}
 	
-}
+} 
 
