@@ -1,0 +1,6 @@
+Algorithm FCFS
+--time 279ms: Simulator ended for SRT
+--Avg Burst Time: 0.0 ms
+--Avg Wait Time: 9.223372036854776E16 ms
+--Avg Turnaround Time: 9.223372036854776E16 ms
+--Preemptions: 0

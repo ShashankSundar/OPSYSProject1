@@ -29,14 +29,14 @@ public class Project1 {
 		
 		String st;
 		while ((st = br.readLine()) != null) {
-			if (st.indexOf('#') != -1)
+			if (st.indexOf('#') != -1 || st.equals(""))
 				continue;
 			int newMark = 0;
 			int oldMark = 0;
 			
-			newMark = st.indexOf('|', oldMark);
+			newMark = st.indexOf('|');
 			String id = st.substring(oldMark, newMark);
-			
+			System.out.println(id);
 			oldMark = newMark+1;
 			newMark = st.indexOf('|', oldMark);	
 			int arrival = Integer.parseInt(st.substring(oldMark, newMark));
@@ -109,6 +109,18 @@ public class Project1 {
 		}
 	}
 	
+	private static void arrival(ArrayList<Process> processes, ArrayList<Process> queue, int time, int totalBursts, double avgBurstTime) {
+		for(int i = 0; i < processes.size(); i++) {
+			if (processes.get(i).getArrivalTime() == time) {
+				avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
+				totalBursts += processes.get(i).getOriginalBursts();
+				queue.add(processes.get(i));
+				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
+				printQueue(queue);
+			}
+		}
+	}
+	
 	private static void fcfs(ArrayList<Process> processes, BufferedWriter writer) {
 		double avgWaitTime = 0.0;
 		double avgBurstTime = 0.0;
@@ -127,15 +139,7 @@ public class Project1 {
 		
 		while (!done) {
 			// processes arrive
-			for(int i = 0; i < processes.size(); i++) {
-				if (processes.get(i).getArrivalTime() == time) {
-					avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
-					totalBursts += processes.get(i).getOriginalBursts();
-					queue.add(processes.get(i));
-					System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
-					printQueue(queue);
-				}
-			}
+			arrival(processes, queue, time, totalBursts, avgBurstTime);
 			
 			// context switch in to start process
 			if (currentProcess == null && queue.size() > 0) {
@@ -145,6 +149,7 @@ public class Project1 {
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					waitingProc(queue);
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
@@ -170,10 +175,12 @@ public class Project1 {
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
 					printQueue(queue);
 					ioHandle(time, queue, ioBlock);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
+						arrival(processes, queue, time, totalBursts, avgBurstTime);
 						waitingProc(queue);
 					}
 					
@@ -189,10 +196,12 @@ public class Project1 {
 				avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
 				n--;
 				ioHandle(time, queue, ioBlock);
+				arrival(processes, queue, time, totalBursts, avgBurstTime);
 				currentProcess = null;
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					waitingProc(queue);
 				}
 				continue;
