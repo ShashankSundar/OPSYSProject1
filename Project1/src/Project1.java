@@ -60,7 +60,7 @@ public class Project1 {
 			processes.get(i).reset();
 		}
 		time = 0;
-		srt(processes,writer);
+//		srt(processes,writer);
 		
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
@@ -533,7 +533,7 @@ public class Project1 {
 				//preempted
 				}else {
 					preempt = true;
-					numPreemptions++;
+					numPreemptions+=1;
 					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
@@ -563,7 +563,8 @@ public class Project1 {
 				if(preempt && currentProcess.getOriginalBurstTime()!=currentProcess.getRemainingBurstTime()) {
 					System.out.print(" with "+currentProcess.getRemainingBurstTime()+"ms remaining");
 				}
-				printQueue(queue);	
+				printQueue(queue);
+				numContextSwitches++;
 				continue;
 			}
 			// process burst finishes
@@ -653,15 +654,15 @@ public class Project1 {
 		try {
 			writer.write("Algorithm RR\n");
 			writer.flush();
-			writer.write("--time "+time+"ms: Simulator ended for SRT\n");
+			writer.write("-- average CPU burst time: "+avgBurstTime+"ms\n");
 			writer.flush();
-			writer.write("--Avg Burst Time: "+avgBurstTime+" ms\n");
+			writer.write("-- average wait time: "+avgWaitTime+"ms\n");
 			writer.flush();
-			writer.write("--Avg Wait Time: "+avgWaitTime+" ms\n");
+			writer.write("-- average turnaround time "+avgTurnaroundTime+"ms\n");
 			writer.flush();
-			writer.write("--Avg Turnaround Time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- total number of context switches: "+ numContextSwitches +"\n");
 			writer.flush();
-			writer.write("--Preemptions: "+numPreemptions + "\n");
+			writer.write("-- total number of preemptions "+ numPreemptions+"\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
