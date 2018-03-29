@@ -10,6 +10,7 @@ public class Project1 {
 	public static PriorityQueue<Process> queue = new PriorityQueue<Process>();
 	public static Process currentProcess = null;
 	public static int numPreemptions = 0;
+	public static int numContextSwitches = 0;
 	
 	public static void main(String[] args) throws Exception{
 		// Error handling
@@ -300,6 +301,7 @@ public class Project1 {
 							srtArrival(processes,avgBurstTime,totalBursts,ioBlock,time);
 							waitingPProc();
 						}
+						numContextSwitches++;
 						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 						printPQueue();	
 					}
@@ -345,6 +347,7 @@ public class Project1 {
 							srtArrival(processes,avgBurstTime,totalBursts,ioBlock,time);
 							waitingPProc();
 						}
+						numContextSwitches++;
 						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+
 								" started using the CPU");
 						printPQueue();	
@@ -368,7 +371,6 @@ public class Project1 {
 		double avgWaitTime = 0.0;
 		double avgBurstTime = 0.0;
 		double avgTurnaroundTime = 0.0;
-		int numContextSwitches = 0;
 		int totalBursts = 0;
 		int n = processes.size();
 		int time = 0;
@@ -394,6 +396,7 @@ public class Project1 {
 					srtArrival(processes,avgBurstTime,totalBursts,ioBlock,time);
 					waitingPProc();
 				}
+				numContextSwitches++;
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				if(currentProcess.getRemainingBurstTime() != currentProcess.getOriginalBurstTime()) {
 					System.out.print(" with " + currentProcess.getRemainingBurstTime() + "ms remaining");
@@ -484,21 +487,21 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
-		
 		try {
 			writer.write("Algorithm SRT\n");
 			writer.flush();
-			writer.write("--time "+time+"ms: Simulator ended for SRT\n");
+			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Burst Time: "+avgBurstTime+" ms\n");
+			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Wait Time: "+avgWaitTime+" ms\n");
+			writer.write("-- Average turnaround time: "+avgTurnaroundTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Turnaround Time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- total number of context switches: " + numContextSwitches+"\n");
 			writer.flush();
-			writer.write("--Preemptions: "+numPreemptions + "\n");
+			writer.write("-- total number of Preemptions: "+numPreemptions + "\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -669,19 +672,18 @@ public class Project1 {
 		try {
 			writer.write("Algorithm RR\n");
 			writer.flush();
-			writer.write("--time "+time+"ms: Simulator ended for SRT\n");
+			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Burst Time: "+avgBurstTime+" ms\n");
+			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Wait Time: "+avgWaitTime+" ms\n");
+			writer.write("-- average turnaround time: "+avgTurnaroundTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Turnaround Time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- total number of context switches: "+numContextSwitches+"\n");
 			writer.flush();
-			writer.write("--Preemptions: "+numPreemptions + "\n");
+			writer.write("-- total number of preemptions: "+numPreemptions + "\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
 }
-
