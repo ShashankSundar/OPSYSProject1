@@ -1,0 +1,12 @@
+Algorithm FCFS
+--time 212ms: Simulator ended for SRT
+--Avg Burst Time: 0.0 ms
+--Avg Wait Time: 9.223372036854776E16 ms
+--Avg Turnaround Time: 9.223372036854776E16 ms
+--Preemptions: 0
+Algorithm RR
+-- average CPU burst time: 0.0ms
+-- average wait time: 9.223372036854776E16ms
+-- average turnaround time 9.223372036854776E16ms
+-- total number of context switches: 4
+-- total number of preemptions 2
