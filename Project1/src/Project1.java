@@ -545,6 +545,7 @@ public class Project1 {
 					preempt = true;
 					numPreemptions++;
 					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
+					printQueue(queue);
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
@@ -552,11 +553,9 @@ public class Project1 {
 						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
-					printQueue(queue);
 					queue.add(currentProcess);
-					currentProcess = null;					
+					currentProcess = null;				
 				}
-				//reset Time Slice
 				timeSlice = 80;
 			}
 			// context switch in
@@ -569,6 +568,8 @@ public class Project1 {
 					ioHandle(time, queue, ioBlock);
 					arrival(processes, queue, time);
 					waitingProc(queue);
+					//reset Time Slice
+					timeSlice = 80;	
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				if(preempt && currentProcess.getOriginalBurstTime()!=currentProcess.getRemainingBurstTime()) {
@@ -608,7 +609,6 @@ public class Project1 {
 					Process temp = new Process(currentProcess);
 					ioBlock.add(temp);
 					currentProcess = null;
-					timeSlice = 80;
 					continue;
 				}
 				else {
@@ -627,7 +627,6 @@ public class Project1 {
 						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
-					timeSlice = 80;
 					continue;
 				}
 			}
