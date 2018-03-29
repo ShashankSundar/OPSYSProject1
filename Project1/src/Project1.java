@@ -537,12 +537,12 @@ public class Project1 {
 			//time slice expired
 			if( timeSlice == 0) {
 				//not preempted
-				if(queue.size()==0){
+				if(queue.size()==0 && currentProcess!=null){
 					preempt = false;
 					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
 					printQueue(queue);
 				//preempted
-				}else {
+				}else if(queue.size()!= 0 && currentProcess!=null) {
 					preempt = true;
 					numPreemptions++;
 					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
