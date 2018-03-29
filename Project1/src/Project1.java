@@ -59,7 +59,7 @@ public class Project1 {
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
 		}
-		srt(processes,writer);
+//		srt(processes,writer);
 		
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
@@ -563,6 +563,7 @@ public class Project1 {
 			// context switch in
 			if (currentProcess == null && queue.size() > 0) {
 				currentProcess = queue.remove(0);
+				numContextSwitches++;
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
@@ -615,7 +616,8 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 					printQueue(queue);
 					avgWaitTime += currentProcess.getWaitTime();
-					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+//					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+					avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 					n--;
 					ioHandle(time, queue, ioBlock);
 					arrival(processes, queue, time);
@@ -663,21 +665,22 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		
 		try {
 			writer.write("Algorithm RR\n");
 			writer.flush();
-			writer.write("--time "+time+"ms: Simulator ended for SRT\n");
+			writer.write("--average CPU burst time: "+avgBurstTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Burst Time: "+avgBurstTime+" ms\n");
+			writer.write("--average wait time: "+avgWaitTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Wait Time: "+avgWaitTime+" ms\n");
+			writer.write("--average turnaround time: "+avgTurnaroundTime+" ms\n");
 			writer.flush();
-			writer.write("--Avg Turnaround Time: "+avgTurnaroundTime+" ms\n");
+			writer.write("--total number of context switches: "+numContextSwitches + "\n");
 			writer.flush();
-			writer.write("--Preemptions: "+numPreemptions + "\n");
+			writer.write("--total number of preemptions: "+numPreemptions + "\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
