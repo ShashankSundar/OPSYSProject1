@@ -522,7 +522,7 @@ public class Project1 {
 		
 		while (!done) {
 			// processes arrive
-			arrival(processes, queue, time);
+			arrival(processes, queue, time, totalBursts, avgBurstTime);
 			//time slice expired
 			if( timeSlice == 0) {
 				//not preempted
@@ -539,7 +539,7 @@ public class Project1 {
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						arrival(processes, queue, time, totalBursts, avgBurstTime);
 						waitingProc(queue);
 					}
 					printQueue(queue);
@@ -557,7 +557,7 @@ public class Project1 {
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					waitingProc(queue);
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
@@ -586,12 +586,12 @@ public class Project1 {
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms"/*timeslice: " + timeSlice*/);
 					printQueue(queue);
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						arrival(processes, queue, time, totalBursts, avgBurstTime);
 						waitingProc(queue);
 					}
 					
@@ -609,12 +609,12 @@ public class Project1 {
 					avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 					n--;
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					arrival(processes, queue, time, totalBursts, avgBurstTime);
 					currentProcess = null;
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						arrival(processes, queue, time, totalBursts, avgBurstTime);
 						waitingProc(queue);
 					}
 					timeSlice = 80;
