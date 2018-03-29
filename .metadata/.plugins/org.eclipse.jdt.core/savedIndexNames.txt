@@ -1,6 +1,5 @@
 INDEX VERSION 1.130+C:\Users\chengj6\Documents\GitHub\OPSYSProject1\.metadata\.plugins\org.eclipse.jdt.core
 3145607036.index
-3752412722.index
 3982276604.index
 189530877.index
 3627084181.index
