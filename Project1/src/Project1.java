@@ -13,9 +13,9 @@ public class Project1 {
 	
 	public static void main(String[] args) throws Exception{
 		// Error handling
-		if(args.length != 2) {
-			System.out.println(" ERROR: Invalid arguments\n USAGE: ./a.out <input-file> <stats-output-file> [<rr-add>]");
-		}
+//		if(args.length != 2) {
+//			System.out.println(" ERROR: Invalid arguments\n USAGE: ./a.out <input-file> <stats-output-file> [<rr-add>]");
+//		}
 		
 
 		// Read File
@@ -542,9 +542,9 @@ public class Project1 {
 		for(int i = 0; i < processes.size(); i++) {
 			if (processes.get(i).getArrivalTime() == time) {
 				if (beg)
-					queue.add(processes.get(i));
-				else
 					queue.add(0,processes.get(i));
+				else
+					queue.add(processes.get(i));
 				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
 				printQueue(queue);
 			}
@@ -593,6 +593,7 @@ public class Project1 {
 						arrivalRR(processes, queue, time,beg);
 						waitingProc(queue);
 					}
+					
 					queue.add(currentProcess);
 					currentProcess = null;				
 				}
@@ -672,7 +673,6 @@ public class Project1 {
 			
 			// all processes done
 			if (n == 0)
-				
 				break;
 						
 			time++;
