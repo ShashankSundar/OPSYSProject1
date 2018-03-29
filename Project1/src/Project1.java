@@ -184,7 +184,8 @@ public class Project1 {
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printQueue(queue);
 				avgWaitTime += currentProcess.getWaitTime();
-				avgTurnaroundTime += currentProcess.getWaitTime() + time-currentProcess.getArrivalTime();
+				//avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+				avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 				n--;
 				ioHandle(time, queue, ioBlock);
 				arrival(processes, queue, time);
@@ -227,7 +228,8 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		try {
 			writer.write("Algorithm FCFS\n");
