@@ -234,15 +234,15 @@ public class Project1 {
 		try {
 			writer.write("Algorithm FCFS\n");
 			writer.flush();
-			writer.write("--average CPU burst time: "+avgBurstTime+" ms\n");
+			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
 			writer.flush();
-			writer.write("--average wait time: "+avgWaitTime+" ms\n");
+			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
 			writer.flush();
-			writer.write("--average turnaround time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- average turnaround time: "+avgTurnaroundTime+" ms\n");
 			writer.flush();
-			writer.write("--total number of context switches: "+numContextSwitches+"\n");
+			writer.write("-- total number of context switches: "+numContextSwitches+"\n");
 			writer.flush();
-			writer.write("--total number of preemptions: "+numPreemptions+"\n");
+			writer.write("-- total number of preemptions: "+numPreemptions+"\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
