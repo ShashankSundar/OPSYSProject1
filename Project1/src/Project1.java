@@ -522,24 +522,24 @@ public class Project1 {
 		
 		while (!done) {
 			// processes arrive
-			arrival(processes, queue, time, totalBursts, avgBurstTime);
+			arrival(processes, queue, time);
 			//time slice expired
 			if( timeSlice == 0) {
 				//not preempted
-				if(queue.size()==0){
+				if(queue.size()==0 && currentProcess!=null){
 					preempt = false;
 					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
 					printQueue(queue);
 				//preempted
-				}else {
+				}else if(queue.size()!= 0 && currentProcess!=null) {
 					preempt = true;
-					numPreemptions+=1;
+					numPreemptions++;
 					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time, totalBursts, avgBurstTime);
+						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
 					printQueue(queue);
@@ -552,19 +552,19 @@ public class Project1 {
 			// context switch in
 			if (currentProcess == null && queue.size() > 0) {
 				currentProcess = queue.remove(0);
+				numContextSwitches++;
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time, totalBursts, avgBurstTime);
+					arrival(processes, queue, time);
 					waitingProc(queue);
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				if(preempt && currentProcess.getOriginalBurstTime()!=currentProcess.getRemainingBurstTime()) {
 					System.out.print(" with "+currentProcess.getRemainingBurstTime()+"ms remaining");
 				}
-				printQueue(queue);
-				numContextSwitches++;
+				printQueue(queue);	
 				continue;
 			}
 			// process burst finishes
@@ -586,12 +586,12 @@ public class Project1 {
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms"/*timeslice: " + timeSlice*/);
 					printQueue(queue);
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time, totalBursts, avgBurstTime);
+					arrival(processes, queue, time);
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time, totalBursts, avgBurstTime);
+						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
 					
@@ -605,15 +605,16 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 					printQueue(queue);
 					avgWaitTime += currentProcess.getWaitTime();
-					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+//					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
+					avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 					n--;
 					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time, totalBursts, avgBurstTime);
+					arrival(processes, queue, time);
 					currentProcess = null;
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
 						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time, totalBursts, avgBurstTime);
+						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
 					timeSlice = 80;
@@ -643,31 +644,38 @@ public class Project1 {
 				
 		}
 		
+		for (int i = 0; i < processes.size(); i++) {
+			avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
+			totalBursts += processes.get(i).getOriginalBursts();
+		}
+		
 		System.out.println("time "+time+"ms: Simulator ended for RR\n");
 		avgBurstTime = avgBurstTime/totalBursts;
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
+		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		
 		try {
 			writer.write("Algorithm RR\n");
 			writer.flush();
-			writer.write("-- average CPU burst time: "+avgBurstTime+"ms\n");
+			writer.write("--average CPU burst time: "+avgBurstTime+" ms\n");
 			writer.flush();
-			writer.write("-- average wait time: "+avgWaitTime+"ms\n");
+			writer.write("--average wait time: "+avgWaitTime+" ms\n");
 			writer.flush();
-			writer.write("-- average turnaround time "+avgTurnaroundTime+"ms\n");
+			writer.write("--average turnaround time: "+avgTurnaroundTime+" ms\n");
 			writer.flush();
-			writer.write("-- total number of context switches: "+ numContextSwitches +"\n");
+			writer.write("--total number of context switches: "+numContextSwitches + "\n");
 			writer.flush();
-			writer.write("-- total number of preemptions "+ numPreemptions+"\n");
+			writer.write("--total number of preemptions: "+numPreemptions + "\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 	}
+}
 }
 
 
