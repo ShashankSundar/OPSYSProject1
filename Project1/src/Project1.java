@@ -16,6 +16,7 @@ public class Project1 {
 		if(args.length != 2) {
 			System.out.println(" ERROR: Invalid arguments\n USAGE: ./a.out <input-file> <stats-output-file> [<rr-add>]");
 		}
+		
 
 		// Read File
 		File file = new File(args[0]);
@@ -24,6 +25,15 @@ public class Project1 {
 		// Write File
 		File outFile = new File(args[1]);
 		BufferedWriter writer = new BufferedWriter(new FileWriter(outFile));
+		
+		boolean beg = false;
+		if (args.length == 3) {
+			String whatEnd = args[2];
+			if (whatEnd.equals("BEGINNING")){
+				beg = true;
+			}
+		}
+				
 
 		ArrayList<Process> processes = new ArrayList<>();
 		
@@ -64,7 +74,7 @@ public class Project1 {
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
 		}
-		rr(processes, writer);
+		rr(processes, writer, beg);
 	
 		writer.close();
 		
@@ -184,7 +194,6 @@ public class Project1 {
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printQueue(queue);
 				avgWaitTime += currentProcess.getWaitTime();
-				//avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
 				avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 				n--;
 				ioHandle(time, queue, ioBlock);
@@ -228,7 +237,6 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		try {
@@ -487,7 +495,6 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*cswitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 
@@ -514,10 +521,38 @@ public class Project1 {
 	
 //  RR STUFF
 	
+	private static void ioHandleRR(int time, ArrayList<Process> queue, ArrayList<Process> ioBlock, boolean beg) {
+		for(int i = 0; i < ioBlock.size(); i++) {
+			ioBlock.get(i).decrementIO();
+			if (ioBlock.get(i).getRemainingIOTime() == 0) {
+				Process temp = ioBlock.remove(i);
+				temp.resetIOTime();
+				if (beg)
+					queue.add(0,temp);
+				else
+					queue.add(temp);
+				System.out.print("time "+time+"ms: Process "+temp.getID()+" completed I/O; added to ready queue");
+				printQueue(queue);
+				i--;
+			}
+		}
+	}
+	
+	private static void arrivalRR(ArrayList<Process> processes, ArrayList<Process> queue, int time, boolean beg) {
+		for(int i = 0; i < processes.size(); i++) {
+			if (processes.get(i).getArrivalTime() == time) {
+				if (beg)
+					queue.add(processes.get(i));
+				else
+					queue.add(0,processes.get(i));
+				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
+				printQueue(queue);
+			}
+		}
+	}
 	
 	
-	
-	private static void rr(ArrayList<Process> processes, BufferedWriter writer) {
+	private static void rr(ArrayList<Process> processes, BufferedWriter writer, boolean beg) {
 		int timeSlice = 80;
 		boolean preempt = false;
 		double avgWaitTime = 0.0;
@@ -537,7 +572,7 @@ public class Project1 {
 		
 		while (!done) {
 			// processes arrive
-			arrival(processes, queue, time);
+			arrivalRR(processes, queue, time,beg);
 			//time slice expired
 			if( timeSlice == 0) {
 				//not preempted
@@ -554,8 +589,8 @@ public class Project1 {
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
-						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						ioHandleRR(time, queue, ioBlock,beg);
+						arrivalRR(processes, queue, time,beg);
 						waitingProc(queue);
 					}
 					queue.add(currentProcess);
@@ -570,8 +605,8 @@ public class Project1 {
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
-					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					ioHandleRR(time, queue, ioBlock,beg);
+					arrivalRR(processes, queue, time,beg);
 					waitingProc(queue);
 					//reset Time Slice
 					timeSlice = 80;	
@@ -601,13 +636,13 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms"/*timeslice: " + timeSlice*/);
 					printQueue(queue);
-					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					ioHandleRR(time, queue, ioBlock,beg);
+					arrivalRR(processes, queue, time,beg);
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
-						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						ioHandleRR(time, queue, ioBlock,beg);
+						arrivalRR(processes, queue, time,beg);
 						waitingProc(queue);
 					}
 					
@@ -620,16 +655,15 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 					printQueue(queue);
 					avgWaitTime += currentProcess.getWaitTime();
-//					avgTurnaroundTime += currentProcess.getWaitTime() + (time-currentProcess.getArrivalTime());
 					avgTurnaroundTime += currentProcess.getWaitTime() + (currentProcess.getOriginalBurstTime() * currentProcess.getOriginalBursts());
 					n--;
-					ioHandle(time, queue, ioBlock);
-					arrival(processes, queue, time);
+					ioHandleRR(time, queue, ioBlock,beg);
+					arrivalRR(processes, queue, time,beg);
 					currentProcess = null;
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
-						ioHandle(time, queue, ioBlock);
-						arrival(processes, queue, time);
+						ioHandleRR(time, queue, ioBlock,beg);
+						arrivalRR(processes, queue, time,beg);
 						waitingProc(queue);
 					}
 					continue;
@@ -645,7 +679,7 @@ public class Project1 {
 			timeSlice--;
 			
 			// I/0
-			ioHandle(time, queue, ioBlock);
+			ioHandleRR(time, queue, ioBlock,beg);
 			
 			// Waiting
 			waitingProc(queue);
@@ -667,7 +701,6 @@ public class Project1 {
 		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
-		//avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		
