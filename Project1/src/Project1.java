@@ -58,7 +58,7 @@ public class Project1 {
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
 		}
-//		srt(processes,writer);
+		srt(processes,writer);
 		
 		for(int i = 0; i < processes.size(); i++) {
 			processes.get(i).reset();
@@ -251,7 +251,6 @@ public class Project1 {
 	
 	
 // SRT STUFF
-	
 
 	
 	// For priority queue
@@ -272,7 +271,7 @@ public class Project1 {
 			p.incrementWait();
 		} 
 	}
-	
+
 	// For priority queue
 	private static void ioPHandle(ArrayList<Process> processes, double avgBurstTime, int totalBursts,ArrayList<Process> ioBlock, int time) {
 		for(int i = 0; i < ioBlock.size(); i++) {
@@ -318,14 +317,14 @@ public class Project1 {
 			}
 		}
 	}
-	
+
 	private static void srtArrival(ArrayList<Process> processes, double avgBurstTime, int totalBursts, ArrayList<Process> ioBlock,int time) {
 		for(int i = 0; i < processes.size(); i++) {
 			if (processes.get(i).getArrivalTime() == time) {
 				avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
 				totalBursts += processes.get(i).getOriginalBursts();
 				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and ");
-				
+
 				// Check if it will preempt current process
 				if(currentProcess != null) {
 					// Before we add it to the Queue we must check for a preemption
@@ -336,7 +335,7 @@ public class Project1 {
 						printPQueue();
 						queue.add(currentProcess);
 						currentProcess = processes.get(i);
-						
+
 						// Account for context switch
 						for(int count = 0; count < T_CS; count++) { // Use all of the cs time: half to take it out and half to pu the new one in
 							time++;
@@ -375,13 +374,13 @@ public class Project1 {
 		ArrayList<Process> ioBlock = new ArrayList<>();
 
 		boolean done = false;
-		
+
 		System.out.println("time "+time+"ms: Simulator started for SRT [Q <empty>]");
-		
+
 		while (!done) {
 			// processes arrive
 			srtArrival(processes, avgBurstTime, totalBursts, ioBlock,time);
-			
+
 			// Context switch for the first process
 			if(currentProcess == null && queue.size() > 0) {
 				currentProcess = queue.poll();
@@ -410,7 +409,7 @@ public class Project1 {
 				if (currentProcess.getRemainingBursts() != 0) {
 					if (currentProcess.getRemainingBursts() == 1) {
 						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
-								+ " burst to go");
+						+ " burst to go");
 					}
 					else {
 						System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" completed a CPU burst; "+currentProcess.getRemainingBursts()
@@ -420,13 +419,13 @@ public class Project1 {
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
 							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
 					printPQueue();
-					
+
 					Process temp = new Process(currentProcess);
 					currentProcess = null;
-					
+
 					ioPHandle(processes,avgBurstTime,totalBursts,ioBlock,time);
 					srtArrival(processes, avgBurstTime, totalBursts, ioBlock,time);
-					
+
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						// Increment time and check for arrival
@@ -438,7 +437,7 @@ public class Project1 {
 					ioBlock.add(temp);
 					continue;
 				}
-				
+
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" terminated");
 				printPQueue();
 				avgWaitTime += currentProcess.getWaitTime();
@@ -461,22 +460,22 @@ public class Project1 {
 			// all processes done
 			if (n == 0) 
 				break;
-			
+
 			time++;
-			
+
 			// I/0
 			ioPHandle(processes,avgBurstTime,totalBursts,ioBlock,time);
-			
+
 			// Waiting
 			waitingPProc();
-			
-			
+
+
 			// decrement running process
 			if (currentProcess != null) {
 				currentProcess.decrementBurst();
 			}
 		}
-		
+
 		// Final calculations
 		System.out.println("time "+time+"ms: Simulator ended for SRT\n");
 		avgBurstTime = avgBurstTime/totalBursts;
@@ -485,7 +484,7 @@ public class Project1 {
 		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
 		avgTurnaroundTime = avgTurnaroundTime/(totalBursts*processes.size());
 		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
-		
+
 		try {
 			writer.write("Algorithm SRT\n");
 			writer.flush();
@@ -502,7 +501,7 @@ public class Project1 {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	
+
 	}
 	
 
@@ -545,6 +544,7 @@ public class Project1 {
 					preempt = true;
 					numPreemptions++;
 					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
+					printQueue(queue);
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
@@ -552,11 +552,9 @@ public class Project1 {
 						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
-					printQueue(queue);
 					queue.add(currentProcess);
-					currentProcess = null;					
+					currentProcess = null;				
 				}
-				//reset Time Slice
 				timeSlice = 80;
 			}
 			// context switch in
@@ -569,6 +567,8 @@ public class Project1 {
 					ioHandle(time, queue, ioBlock);
 					arrival(processes, queue, time);
 					waitingProc(queue);
+					//reset Time Slice
+					timeSlice = 80;	
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				if(preempt && currentProcess.getOriginalBurstTime()!=currentProcess.getRemainingBurstTime()) {
@@ -608,7 +608,6 @@ public class Project1 {
 					Process temp = new Process(currentProcess);
 					ioBlock.add(temp);
 					currentProcess = null;
-					timeSlice = 80;
 					continue;
 				}
 				else {
@@ -627,7 +626,6 @@ public class Project1 {
 						arrival(processes, queue, time);
 						waitingProc(queue);
 					}
-					timeSlice = 80;
 					continue;
 				}
 			}
