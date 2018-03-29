@@ -1,6 +1,7 @@
 import java.io.*;
 import java.util.*;
 import java.lang.Math;
+import java.text.DecimalFormat;
 
 public class Project1 {
 	
@@ -10,6 +11,7 @@ public class Project1 {
 	public static Process currentProcess = null;
 	public static int numPreemptions = 0;
 	public static int cswitches = 0;
+	final static DecimalFormat df = new DecimalFormat("#0.00");
 	
 	public static void main(String[] args) throws Exception{
 		// Error handling
@@ -150,9 +152,9 @@ public class Project1 {
 				numContextSwitches++;
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
+					waitingProc(queue);
 					ioHandle(time, queue, ioBlock);
 					arrival(processes, queue, time);
-					waitingProc(queue);
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				printQueue(queue);	
@@ -181,9 +183,9 @@ public class Project1 {
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
+						waitingProc(queue);
 						ioHandle(time, queue, ioBlock);
 						arrival(processes, queue, time);
-						waitingProc(queue);
 					}
 					Process temp = new Process(currentProcess);
 					ioBlock.add(temp);
@@ -201,9 +203,9 @@ public class Project1 {
 				currentProcess = null;
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
+					waitingProc(queue);
 					ioHandle(time, queue, ioBlock);
 					arrival(processes, queue, time);
-					waitingProc(queue);
 				}
 				continue;
 			}
@@ -214,10 +216,10 @@ public class Project1 {
 						
 			time++;
 			
-			// I/0
-			ioHandle(time, queue, ioBlock);
 			// Waiting
 			waitingProc(queue);
+			// I/0
+			ioHandle(time, queue, ioBlock);
 			
 			
 			// decrement running process
@@ -234,19 +236,16 @@ public class Project1 {
 		}
 		System.out.println("time "+time+"ms: Simulator ended for FCFS\n");
 		avgBurstTime = avgBurstTime/totalBursts;
-		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
-		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
-		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		try {
 			writer.write("Algorithm FCFS\n");
 			writer.flush();
-			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
+			writer.write("-- average CPU burst time: "+df.format(avgBurstTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
+			writer.write("-- average wait time: "+df.format(avgWaitTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average turnaround time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- average turnaround time: "+df.format(avgTurnaroundTime)+" ms\n");
 			writer.flush();
 			writer.write("-- total number of context switches: "+numContextSwitches+"\n");
 			writer.flush();
@@ -396,9 +395,9 @@ public class Project1 {
 				//System.out.println("Context switch for when current process is null(first process) +4");
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
+					waitingPProc();
 					ioPHandle(processes,ioBlock,time);
 					srtArrival(processes,ioBlock,time);
-					waitingPProc();
 				}
 				System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" started using the CPU");
 				if(currentProcess.getRemainingBurstTime() != currentProcess.getOriginalBurstTime()) {
@@ -438,9 +437,9 @@ public class Project1 {
 					for (int i = 0; i < T_CS/2; i++) {
 						// Increment time and check for arrival
 						time++;
+						waitingPProc();
 						ioPHandle(processes,ioBlock,time);
 						srtArrival(processes, ioBlock,time);
-						waitingPProc();
 					}
 					ioBlock.add(temp);
 					continue;
@@ -459,9 +458,9 @@ public class Project1 {
 				for (int i = 0; i < T_CS/2; i++) {
 					// Increment time and check for arrival
 					time++;
+					waitingPProc();
 					ioPHandle(processes,ioBlock,time);
 					srtArrival(processes,ioBlock,time);
-					waitingPProc();
 				}
 				continue;
 			}
@@ -470,12 +469,12 @@ public class Project1 {
 				break;
 
 			time++;
+			
+			// Waiting
+			waitingPProc();
 
 			// I/0
 			ioPHandle(processes,ioBlock,time);
-
-			// Waiting
-			waitingPProc();
 
 
 			// decrement running process
@@ -492,24 +491,21 @@ public class Project1 {
 		// Final calculations
 		System.out.println("time "+time+"ms: Simulator ended for SRT\n");
 		avgBurstTime = avgBurstTime/totalBursts;
-		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
-		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*cswitches)/totalBursts;
-		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 
 		try {
 			writer.write("Algorithm SRT\n");
 			writer.flush();
-			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
+			writer.write("-- average CPU burst time: "+df.format(avgBurstTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
+			writer.write("-- average wait time: "+df.format(avgWaitTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average turnaround time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- average turnaround time: "+df.format(avgTurnaroundTime)+" ms\n");
 			writer.flush();
-			writer.write("-- total number of context switches: "+cswitches + "\n");
+			writer.write("-- total number of context switches: "+cswitches+"\n");
 			writer.flush();
-			writer.write("-- total number of preemptions: "+numPreemptions + "\n");
+			writer.write("-- total number of preemptions: "+numPreemptions+"\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -589,9 +585,9 @@ public class Project1 {
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
+						waitingProc(queue);
 						ioHandleRR(time, queue, ioBlock,beg);
 						arrivalRR(processes, queue, time,beg);
-						waitingProc(queue);
 					}
 					
 					queue.add(currentProcess);
@@ -606,9 +602,9 @@ public class Project1 {
 				//context switch
 				for (int i = 0; i < T_CS/2; i++) {
 					time++;
+					waitingProc(queue);
 					ioHandleRR(time, queue, ioBlock,beg);
 					arrivalRR(processes, queue, time,beg);
-					waitingProc(queue);
 					//reset Time Slice
 					timeSlice = 80;	
 				}
@@ -642,9 +638,9 @@ public class Project1 {
 					//context switch
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
+						waitingProc(queue);
 						ioHandleRR(time, queue, ioBlock,beg);
 						arrivalRR(processes, queue, time,beg);
-						waitingProc(queue);
 					}
 					
 					Process temp = new Process(currentProcess);
@@ -663,9 +659,9 @@ public class Project1 {
 					currentProcess = null;
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
+						waitingProc(queue);
 						ioHandleRR(time, queue, ioBlock,beg);
 						arrivalRR(processes, queue, time,beg);
-						waitingProc(queue);
 					}
 					continue;
 				}
@@ -678,12 +674,11 @@ public class Project1 {
 			time++;
 			timeSlice--;
 			
-			// I/0
-			ioHandleRR(time, queue, ioBlock,beg);
-			
 			// Waiting
 			waitingProc(queue);
 			
+			// I/0
+			ioHandleRR(time, queue, ioBlock,beg);
 			
 			// decrement running process
 			if (currentProcess != null) {
@@ -698,24 +693,21 @@ public class Project1 {
 		}
 		System.out.println("time "+time+"ms: Simulator ended for RR\n");
 		avgBurstTime = avgBurstTime/totalBursts;
-		avgBurstTime = (double)Math.round(avgBurstTime * 100d) / 100d;
 		avgWaitTime = avgWaitTime/totalBursts;
-		avgWaitTime = (double)Math.round(avgWaitTime * 100d) / 100d;
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
-		avgTurnaroundTime = (double)Math.round(avgTurnaroundTime * 100d) / 100d;
 		
 		try {
 			writer.write("Algorithm RR\n");
 			writer.flush();
-			writer.write("-- average CPU burst time: "+avgBurstTime+" ms\n");
+			writer.write("-- average CPU burst time: "+df.format(avgBurstTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average wait time: "+avgWaitTime+" ms\n");
+			writer.write("-- average wait time: "+df.format(avgWaitTime)+" ms\n");
 			writer.flush();
-			writer.write("-- average turnaround time: "+avgTurnaroundTime+" ms\n");
+			writer.write("-- average turnaround time: "+df.format(avgTurnaroundTime)+" ms\n");
 			writer.flush();
-			writer.write("-- total number of context switches: "+numContextSwitches + "\n");
+			writer.write("-- total number of context switches: "+numContextSwitches+"\n");
 			writer.flush();
-			writer.write("-- total number of preemptions: "+numPreemptions + "\n");
+			writer.write("-- total number of preemptions: "+numPreemptions+"\n");
 			writer.flush();
 		} catch (IOException e) {
 			e.printStackTrace();
