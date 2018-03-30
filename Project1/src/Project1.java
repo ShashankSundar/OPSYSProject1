@@ -547,6 +547,14 @@ public class Project1 {
 		}
 	}
 	
+	public static void rr_add(ArrayList<Process> queue, Process process, boolean beg) {
+		if(beg) {
+			queue.add(0,process);		
+		}else {
+			queue.add(process);
+		}
+	}
+	
 	
 	private static void rr(ArrayList<Process> processes, BufferedWriter writer, boolean beg) {
 		int timeSlice = 80;
@@ -590,7 +598,7 @@ public class Project1 {
 						arrivalRR(processes, queue, time,beg);
 					}
 					
-					queue.add(currentProcess);
+					rr_add(queue, currentProcess, beg);
 					currentProcess = null;				
 				}
 				timeSlice = 80;
