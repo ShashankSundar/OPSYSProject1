@@ -576,14 +576,14 @@ public class Project1 {
 				//not preempted
 				if(queue.size()==0 && currentProcess!=null){
 					preempt = false;
-					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
-					printQueue(queue);
+//					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
+//					printQueue(queue);
 				//preempted
 				}else if(queue.size()!= 0 && currentProcess!=null) {
 					preempt = true;
 					numPreemptions++;
-					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
-					printQueue(queue);
+//					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+currentProcess.getRemainingBurstTime()+"ms to go");
+//					printQueue(queue);
 					//context switch out
 					for (int i = 0; i < T_CS/2; i++) {
 						time++;
@@ -678,6 +678,16 @@ public class Project1 {
 			time++;
 			timeSlice--;
 			
+			if( timeSlice == 0) {
+				if(queue.size()==0 && currentProcess!=null){
+					System.out.print("time "+time+"ms: Time slice expired; no preemption because ready queue is empty");
+					printQueue(queue);
+				}else if(queue.size()!= 0 && currentProcess!=null) {
+					int remainingbursttime = currentProcess.getRemainingBurstTime() - 1;
+					System.out.print("time "+time+"ms: Time slice expired; process "+currentProcess.getID()+" preempted with "+remainingbursttime+"ms to go");
+					printQueue(queue);
+				}
+			}
 			// Waiting
 			waitingProc(queue);
 			
