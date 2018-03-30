@@ -1,4 +1,4 @@
-import java.util.ArrayList;
+import java.util.*;
 
 public class Process implements Comparable<Process>{
 	
@@ -114,3 +114,11 @@ public class Process implements Comparable<Process>{
 	}
 	
 }
+
+//class comparableProcess implements Comparator<Process> {
+//
+//@Override
+//public int compare(Process p1, Process p2) {
+//    return p1.compareTo(p2);
+//}
+//}
