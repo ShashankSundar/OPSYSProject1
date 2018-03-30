@@ -525,10 +525,6 @@ public class Project1 {
 				Process temp = ioBlock.remove(i);
 				temp.resetIOTime();
 				rr_add(queue, temp, beg);
-//				if (beg)
-//					queue.add(0,temp);
-//				else
-//					queue.add(temp);
 				System.out.print("time "+time+"ms: Process "+temp.getID()+" completed I/O; added to ready queue");
 				printQueue(queue);
 				i--;
@@ -540,10 +536,6 @@ public class Project1 {
 		for(int i = 0; i < processes.size(); i++) {
 			if (processes.get(i).getArrivalTime() == time) {
 				rr_add(queue, processes.get(i), beg);
-//				if (beg)
-//					queue.add(0,processes.get(i));
-//				else
-//					queue.add(processes.get(i));
 				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
 				printQueue(queue);
 			}
@@ -600,7 +592,8 @@ public class Project1 {
 						arrivalRR(processes, queue, time,beg);
 					}
 					
-					rr_add(queue, currentProcess, beg);
+					//rr_add(queue, currentProcess, beg);	//issue: beg does not matter for timeslice
+					queue.add(currentProcess);
 					currentProcess = null;				
 				}
 				timeSlice = 80;
@@ -641,7 +634,7 @@ public class Project1 {
 						+ " bursts to go");
 					printQueue(queue);
 					System.out.print("time "+time+"ms: Process "+currentProcess.getID()+" switching out of CPU; will block on I/O until time "
-							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms"/*timeslice: " + timeSlice*/);
+							+ (time+currentProcess.getRemainingIOTime() + T_CS/2)+"ms");
 					printQueue(queue);
 					ioHandleRR(time, queue, ioBlock,beg);
 					arrivalRR(processes, queue, time,beg);
