@@ -164,6 +164,7 @@ public class Project1 {
 			// process burst finishes
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() -1 == 0) {
 				time++;
+				waitingProc(queue);
 				currentProcess.decrementBurst();
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
@@ -572,11 +573,10 @@ public class Project1 {
 		ArrayList<Process> queue = new ArrayList<>();
 		ArrayList<Process> ioBlock = new ArrayList<>();
 		Process currentProcess = null;
-		boolean done = false;
 		
 		System.out.println("time "+time+"ms: Simulator started for RR [Q <empty>]");
 		
-		while (!done) {
+		while (true) {
 			// processes arrive
 			arrivalRR(processes, queue, time,beg);
 			//time slice expired
@@ -701,7 +701,7 @@ public class Project1 {
 			avgBurstTime += processes.get(i).getOriginalBurstTime() * processes.get(i).getOriginalBursts();
 			totalBursts += processes.get(i).getOriginalBursts();
 		}
-		System.out.println("time "+time+"ms: Simulator ended for RR\n");
+		System.out.print("time "+time+"ms: Simulator ended for RR\n");
 		avgBurstTime = avgBurstTime/totalBursts;
 		avgWaitTime = avgWaitTime/totalBursts;
 		avgTurnaroundTime = (avgTurnaroundTime+T_CS*numContextSwitches)/totalBursts;
