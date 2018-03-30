@@ -523,10 +523,11 @@ public class Project1 {
 			if (ioBlock.get(i).getRemainingIOTime() == 0) {
 				Process temp = ioBlock.remove(i);
 				temp.resetIOTime();
-				if (beg)
-					queue.add(0,temp);
-				else
-					queue.add(temp);
+				rr_add(queue, temp, beg);
+//				if (beg)
+//					queue.add(0,temp);
+//				else
+//					queue.add(temp);
 				System.out.print("time "+time+"ms: Process "+temp.getID()+" completed I/O; added to ready queue");
 				printQueue(queue);
 				i--;
@@ -537,10 +538,11 @@ public class Project1 {
 	private static void arrivalRR(ArrayList<Process> processes, ArrayList<Process> queue, int time, boolean beg) {
 		for(int i = 0; i < processes.size(); i++) {
 			if (processes.get(i).getArrivalTime() == time) {
-				if (beg)
-					queue.add(0,processes.get(i));
-				else
-					queue.add(processes.get(i));
+				rr_add(queue, processes.get(i), beg);
+//				if (beg)
+//					queue.add(0,processes.get(i));
+//				else
+//					queue.add(processes.get(i));
 				System.out.print("time "+time+"ms: Process "+processes.get(i).getID()+" arrived and added to ready queue");
 				printQueue(queue);
 			}
