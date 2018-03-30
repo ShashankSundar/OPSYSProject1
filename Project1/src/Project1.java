@@ -410,7 +410,7 @@ public class Project1 {
 			// process burst finishes
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() -1 == 0) {
 				// Increment time and check for arrival
-				time++;				
+				time++;			
 				currentProcess.decrementBurst();
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
@@ -622,6 +622,7 @@ public class Project1 {
 			if (currentProcess != null && currentProcess.getRemainingBurstTime() -1 == 0) {
 				time++;
 				timeSlice --;
+				waitingProc(queue);
 				currentProcess.decrementBurst();
 				currentProcess.decrementNumBursts();
 				currentProcess.resetBurstTime();
