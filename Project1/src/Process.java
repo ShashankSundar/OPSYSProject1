@@ -1,3 +1,9 @@
+// *********************************************************************************
+//	Shashank Sundar: sundas6
+//	Jonathan Cheng: chengj6
+//	Kris Whelan: whelak2
+// *********************************************************************************
+
 import java.util.*;
 
 public class Process implements Comparable<Process>{

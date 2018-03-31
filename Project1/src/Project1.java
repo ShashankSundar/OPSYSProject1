@@ -1,3 +1,9 @@
+// *********************************************************************************
+//	Shashank Sundar: sundas6
+//	Jonathan Cheng: chengj6
+//	Kris Whelan: whelak2
+// *********************************************************************************
+
 import java.io.*;
 import java.util.*;
 import java.lang.Math;
@@ -19,7 +25,6 @@ public class Project1 {
 		if(args.length > 3 || args.length <= 1) {
 			System.err.println("ERROR: Invalid arguments\nUSAGE: ./a.out <input-file> <stats-output-file> [<rr-add>]");
 		}
-		
 
 		// Read File
 		File file = new File(args[0]);
@@ -140,10 +145,10 @@ public class Project1 {
 		int numPreemptions = 0; //constant: FCFS has no preemptions
 		int totalBursts = 0;
 		int n = processes.size();
-		int time = 0;
+		time = 0;
 		ArrayList<Process> queue = new ArrayList<>();
 		ArrayList<Process> ioBlock = new ArrayList<>();
-		Process currentProcess = null;
+		currentProcess = null;
 		
 		System.out.println("time "+time+"ms: Simulator started for FCFS [Q <empty>]");
 		
@@ -415,6 +420,7 @@ public class Project1 {
 			int totalBursts = 0;
 			int n = processes.size();
 			time = 0;
+			currentProcess = null;
 			boolean terminated = false;
 			ArrayList<Process> ioBlock = new ArrayList<>();
 			System.out.println("time "+time+"ms: Simulator started for SRT [Q <empty>]");
@@ -603,10 +609,10 @@ public class Project1 {
 		numPreemptions = 0; 
 		int totalBursts = 0;
 		int n = processes.size();
-		int time = 0;
+		time = 0;
 		ArrayList<Process> queue = new ArrayList<>();
 		ArrayList<Process> ioBlock = new ArrayList<>();
-		Process currentProcess = null;
+		currentProcess = null;
 		
 		System.out.println("time "+time+"ms: Simulator started for RR [Q <empty>]");
 		
